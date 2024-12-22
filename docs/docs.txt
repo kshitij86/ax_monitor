@@ -1,0 +1,37 @@
+1. Get the user details / use the demo user
+2. Get user to select the project / a demo project
+3. Open the project
+4. Start the http server to get analytics (basic info initially)
+5. Start the dashboard server
+
+
+The user will automatically be logged out after 30 mins, or the time set in the config_file.
+
+The API server will shutdown gracefully after the expiry time is over.
+
+
+
+AX Monitor has a demo mode in which user can open one project, which is deleted after the session ends
+
+This it to try out AX Monitor.
+
+Otherwise a user can be created, and stored in the users table
+
++----------+----------+---------+
+| username | password | user_id |
++----------+----------+---------+
+
+This table can be queried to find projects related to the user.
+
+The AX Monitor uses tables to store the APIs to be added by a person
+
+For this, the user needs to create a project and import the json file with a list of APIs
+
+After that, these APIs are registered in the database and the user can choose which project to monitor 
+its APIs.
+
+ax_monitor start -> login -> select project / import project -> open dashboard
+
++---------+------------+---------+
+| project | project_id | user_id |
++---------+------------+---------+

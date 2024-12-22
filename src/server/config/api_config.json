@@ -1,0 +1,7 @@
+{
+    "AXMONITOR_API_PORT": 8000,
+    "AXMONITOR_API_HOST": "localhost",
+    "AXMONITOR_API_LIST": [
+        "/"
+    ]
+}
