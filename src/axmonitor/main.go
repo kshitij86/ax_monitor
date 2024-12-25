@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	_ "github.com/go-sql-driver/mysql" // Import the MySQL driver
 )
@@ -49,12 +52,6 @@ func main() {
 
 	fmt.Println("Starting AX_MONITOR...")
 
-	file, err := os.Open("config/server_config.json")
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close() // ensures file is closed before main exits
-
 	apiConfig, apiConfigStatus, err := setAPIConfig()
 	if err != nil {
 		panic(err)
@@ -66,7 +63,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	startDaemon(apiConfig)
+	// send this context to both functions
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	go startDaemon(ctx, apiConfig)
+	go startWebSocketDaemon(ctx)
+
+	stopChan := make(chan os.Signal, 1)
+	signal.Notify(stopChan, syscall.SIGTERM, syscall.SIGINT)
+
+	fmt.Println("Press Ctrl+C to exit...")
+
+	<-stopChan // Wait for the signal
+	fmt.Println("Shutting down gracefully...")
+	// Perform any cleanup here
 }
 
 /*
