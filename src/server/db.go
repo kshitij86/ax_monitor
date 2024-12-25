@@ -6,12 +6,6 @@ import (
 	"fmt"
 )
 
-type User struct {
-	user_id  string
-	username string
-	password string
-}
-
 func CountUsers(db *sql.DB) int {
 	rows, err := db.Query("select * from ax_monitor_users")
 	if err != nil {
