@@ -70,7 +70,7 @@ func StartMonitor() {
 
 	// send this context to both functions
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	defer cancel() // called when the function exits, and stopChan gets SIGTERM
 
 	go startDaemon(ctx, apiConfig)
 	go startWebSocketDaemon(ctx)
@@ -83,6 +83,7 @@ func StartMonitor() {
 	<-stopChan // Wait for the signal
 	fmt.Println("Shutting down gracefully...")
 	// Perform any cleanup here
+	// cancel() is called here
 }
 
 /*

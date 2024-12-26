@@ -2,6 +2,7 @@ package axmonitor
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -38,7 +39,12 @@ func readAndPushToSocket(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 
-		err = conn.WriteMessage(websocket.BinaryMessage, consumedMessage)
+		consumedMessageBytes, err := json.Marshal(consumedMessage)
+		if err != nil {
+			panic(err)
+		}
+
+		err = conn.WriteMessage(websocket.BinaryMessage, consumedMessageBytes)
 		if err != nil {
 			log.Println("WriteMessage error:", err)
 			panic(err)

@@ -26,10 +26,6 @@ import (
 
 */
 
-// not needed as the api struct is sent directly to kafka
-// var apiMap = make(map[string]ApiStatus)
-// var mu sync.Mutex // Mutex to ensure thread-safe access to apiMap
-
 // Function to probe API and update the status
 func probeAPI(ctx context.Context, apiEndpoint string, wgProbe *sync.WaitGroup, kafkaProducer *kafka.Producer) {
 	defer wgProbe.Done() // when the Probe goroutine exits, decrement wait group
@@ -62,7 +58,7 @@ func probeAPI(ctx context.Context, apiEndpoint string, wgProbe *sync.WaitGroup, 
 			}
 
 			// set the last updated
-			api.Api_lastupdated = "fuck"
+			api.Api_lastupdated = time.Now().String()
 
 			// Lock the mutex to update the shared map safely
 			// mu.Lock()
@@ -82,6 +78,8 @@ func probeAPI(ctx context.Context, apiEndpoint string, wgProbe *sync.WaitGroup, 
 }
 
 func startDaemon(ctx context.Context, apiConfig APIConfig) {
+	/* create a wait group for all goroutines */
+	var wgProbe sync.WaitGroup
 
 	select {
 	case <-ctx.Done():
@@ -99,15 +97,12 @@ func startDaemon(ctx context.Context, apiConfig APIConfig) {
 		/* get the API root */
 		apiRoot := getAPIRoot(apiConfig)
 
-		/* create a wait group for all goroutines */
-		var wgProbe sync.WaitGroup
-
 		// start the goroutines to monitor the APIs
 		for i := 0; i < len(apiConfig.Axmonitor_API_List); i++ {
 			apiEndpoint := apiRoot + "" + apiConfig.Axmonitor_API_List[i] // get API endpoint
 			wgProbe.Add(1)                                                // add a new probe goroutine
 			go probeAPI(ctx, apiEndpoint, &wgProbe, kafkaProducer)        // pass a cancelable context and pointer to wait group
 		}
-		wgProbe.Wait() // wait for all goroutines to finish
 	}
+	wgProbe.Wait() // wait for all goroutines to finish
 }

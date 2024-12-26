@@ -49,28 +49,29 @@ func createKafkaConsumer() (*kafka.Consumer, error) {
 	return createdConsumer, nil
 }
 
-func consumeMessageFromTopic(kafkaConsumer *kafka.Consumer) ([]byte, error) {
+func consumeMessageFromTopic(kafkaConsumer *kafka.Consumer) (ApiStatus, error) {
 	/* reads the latest message from the given topic */
+
+	var v ApiStatus
 
 	kafkaConsumer.Subscribe(getKafkaTopic(), nil)
 
-	var consumedMessage []byte
-
 	msg, err := kafkaConsumer.ReadMessage(-1) // read a message
 	if err != nil {
-		return consumedMessage, err
+		return v, err
 	}
-	var v ApiStatus
+
 	json.Unmarshal(msg.Value, &v)
-	fmt.Println("consuming: ", v)
 
 	/*
 		TODO: this consumed message is not able to get the lastupdated field
+
+		FIX: By Unmarshaling the msg.Value and
+		then re-Marshaling it wherever required
 	*/
+	v.Api_lastupdated = msg.Timestamp.String()
 
-	consumedMessage = msg.Value
-
-	return consumedMessage, nil
+	return v, nil
 }
 
 func publishToKafkaTopic(apiStatus ApiStatus, kafkaProducer *kafka.Producer) (bool, error) {
@@ -84,7 +85,6 @@ func publishToKafkaTopic(apiStatus ApiStatus, kafkaProducer *kafka.Producer) (bo
 	/* this runs fine */
 	var temp ApiStatus
 	json.Unmarshal(apiStatusBytes, &temp)
-	fmt.Println("publishing: ", temp)
 
 	// nil here mentions the chan
 	topicName := getKafkaTopic()
