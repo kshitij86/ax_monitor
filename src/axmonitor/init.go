@@ -1,4 +1,4 @@
-package main
+package axmonitor
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	_ "github.com/go-sql-driver/mysql" // Import the MySQL driver
@@ -24,8 +25,12 @@ func getAPIRoot(apiConfig APIConfig) string {
 
 func setAPIConfig() (APIConfig, bool, error) {
 
+	absPath, _ := os.Getwd()
+	// fmt.Println(filepath.Join(absPath, "../src/axmonitor/config/api_config.json"))
+
 	var apiConfig APIConfig
-	file, err := os.Open("config/api_config.json")
+
+	file, err := os.Open(filepath.Join(absPath, "../axmonitor/config/api_config.json"))
 	if err != nil {
 		return apiConfig, false, fmt.Errorf("cannot find api_config file")
 	}
@@ -47,7 +52,7 @@ func setAPIConfig() (APIConfig, bool, error) {
 
 }
 
-func main() {
+func StartMonitor() {
 	fmt.Println(ax_monitor_logo)
 
 	fmt.Println("Starting AX_MONITOR...")

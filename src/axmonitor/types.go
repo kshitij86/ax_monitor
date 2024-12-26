@@ -1,4 +1,4 @@
-package main
+package axmonitor
 
 /* all structs are mentioned here */
 
@@ -6,7 +6,7 @@ type ApiStatus struct {
 	Api_endpoint    string  `json:"api_endpoint"`
 	Api_status      string  `json:"api_status"`
 	Api_uptime      float64 `json:"api_uptime"`
-	Api_lastupdated string  `json: "api_lastupdated"`
+	Api_lastupdated string  `json:"api_lastupdated"`
 }
 
 type DatabaseServerConfig struct {

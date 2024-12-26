@@ -1,4 +1,4 @@
-package main
+package axmonitor
 
 var ax_monitor_logo string = `
 

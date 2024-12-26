@@ -1,4 +1,4 @@
-package main
+package axmonitor
 
 import (
 	"crypto/sha256"

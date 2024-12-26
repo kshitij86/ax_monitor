@@ -1,4 +1,4 @@
-package main
+package axmonitor
 
 import (
 	"context"
@@ -33,10 +33,11 @@ func readAndPushToSocket(w http.ResponseWriter, r *http.Request) {
 	/* read every second from the kafka topic */
 	for {
 		time.Sleep(time.Second)
-		consumedMessage, err := consumeLastMessageFromTopic([]string{kafkaTopic}, kafkaConsumer)
+		consumedMessage, err := consumeMessageFromTopic(kafkaConsumer)
 		if err != nil {
 			panic(err)
 		}
+
 		err = conn.WriteMessage(websocket.BinaryMessage, consumedMessage)
 		if err != nil {
 			log.Println("WriteMessage error:", err)
@@ -46,7 +47,6 @@ func readAndPushToSocket(w http.ResponseWriter, r *http.Request) {
 }
 
 func startWebSocketDaemon(ctx context.Context) {
-	kafkaTopic = "test"
 
 	// Create a new Kafka consumer
 	createdConsumer, err := createKafkaConsumer()
@@ -62,12 +62,10 @@ func startWebSocketDaemon(ctx context.Context) {
 	http.HandleFunc("/ws", readAndPushToSocket)
 
 	// Start the server in a goroutine
-	go func() {
-		fmt.Println("Started WebSocket server on localhost:8080")
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("HTTP server failed: %s", err)
-		}
-	}()
+	fmt.Println("Started WebSocket server on localhost:3000")
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("HTTP server failed: %s", err)
+	}
 
 	// Wait for context cancellation
 	<-ctx.Done()
