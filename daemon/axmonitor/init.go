@@ -68,10 +68,17 @@ func StartMonitor() {
 		os.Exit(1)
 	}
 
+	kafkaBrokerStatus, err := checkKafkaBroker()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("kafka broker up and running? -> ", kafkaBrokerStatus)
 	// send this context to both functions
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel() // called when the function exits, and stopChan gets SIGTERM
 
+	/* start the daemon and the websocket connection */
 	go startDaemon(ctx, apiConfig)
 	go startWebSocketDaemon(ctx)
 

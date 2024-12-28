@@ -1,7 +1,7 @@
 package main
 
 import (
-	"src/axmonitor"
+	"daemon/axmonitor"
 )
 
 func main() {

@@ -3,6 +3,7 @@ package axmonitor
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"sync"
 	"time"
@@ -25,6 +26,15 @@ import (
 	when exiting, the wait group makes sure ALL goroutines exit BEFORE the main program exits
 
 */
+
+func checkKafkaBroker() (bool, error) {
+	_, err := net.Dial("tcp", "localhost:9092")
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
 
 // Function to probe API and update the status
 func probeAPI(ctx context.Context, apiEndpoint string, wgProbe *sync.WaitGroup, kafkaProducer *kafka.Producer) {
